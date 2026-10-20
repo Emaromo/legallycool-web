@@ -1,0 +1,266 @@
+/* Tipografías auto-hospedadas (public/fonts/) en vez de @import a Google Fonts:
+   así no dependen de que el navegador/preview pueda alcanzar fonts.googleapis.com
+   en tiempo de carga (algunos webviews/previews bloquean recursos externos). */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-italic-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-500.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-600.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/cormorant-garamond-700.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/dm-sans-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/dm-sans-500.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/dm-sans-700.ttf') format('truetype');
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   TOKENS DE MOTION — una sola fuente para todas las micro-interacciones.
+   Duraciones cortas (150-250ms); 320ms solo para el zoom de imagen. Curva
+   ease-out, sin rebotes: el movimiento acompaña, no llama la atención.
+   ========================================================================= */
+:root {
+  --dur-fast: 150ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  @apply bg-lc-blanco text-lc-carbon;
+}
+
+h1, h2, h3 {
+  @apply font-serif;
+}
+
+/* Textura sutil tipo papel — placeholder CSS mientras no haya textura real (ver
+   config.media.textura). Muy baja opacidad, no compite con el contenido. */
+body {
+  background-image: radial-gradient(rgba(51, 51, 51, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+/* ============================================================================
+   Motion — capa de micro-interacciones y reveal al scroll. Editorial y sutil:
+   distancias/escalas chicas, duraciones cortas, curvas ease-out. Ver useReveal
+   (src/hooks/useReveal.ts) y BRAND_legallycool.md para los tokens de color.
+   ========================================================================= */
+@layer utilities {
+  /* Reveal al scroll — usado junto con useReveal(). Estado inicial oculto,
+     .is-visible lo revela una sola vez. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms ease-out, transform 600ms ease-out;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* --- .hover-lift — botones y CTAs -------------------------------------
+     Se levantan 2px y ganan sombra; al soltar el click vuelven a su lugar.
+     La sombra la define el sistema (no cada botón) para que sea consistente;
+     un componente puede pisarla seteando --lift-shadow. */
+  .hover-lift {
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+      filter var(--dur) var(--ease);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lift-shadow, 0 8px 20px -8px rgb(51 51 51 / 0.28));
+  }
+  .hover-lift:active {
+    transform: translateY(0);
+  }
+
+  /* --- .chip-lift — chips de selección (Reserva) -------------------------
+     Más contenido que .hover-lift: 1px de elevación, para que una fila de
+     chips no "salte" tanto como un CTA. */
+  .chip-lift {
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+      border-color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  .chip-lift:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+  .chip-lift:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  /* --- .media-zoom — zoom suave de imagen dentro de un contenedor --------
+     El contenedor tiene que llevar overflow-hidden. NO se usa en el carrusel
+     de Áreas: ahí el zoom está desactivado a propósito. */
+  .media-zoom img {
+    transition: transform var(--dur-slow) var(--ease);
+  }
+  .media-zoom:hover img {
+    transform: scale(1.03);
+  }
+
+  /* --- .texto-sobre-vidrio — textos claros sobre el vidrio de Áreas -------
+     El vidrio de las tarjetas es muy transparente (se ve el degradé de la sección
+     por detrás), así que el texto claro queda apoyado sobre zonas de distinto
+     brillo. Esta sombra le da un borde oscuro mínimo para despegarlo del fondo.
+     OJO: mejora la legibilidad percibida, pero no cambia el ratio de contraste
+     WCAG, que se calcula solo entre color de texto y color de fondo. */
+  .texto-sobre-vidrio {
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+  }
+
+  /* --- .focus-ring — foco accesible consistente en toda la landing ------- */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px theme("colors.lc-blanco"), 0 0 0 4px theme("colors.lc-naranja");
+  }
+
+  /* Tarjetas: leve escala al hover en vez de desplazamiento. box-shadow tiene su propia
+     duración más larga (600ms) porque en el carrusel de Áreas también la usa el cambio
+     activa/vecina, más lento que el hover — la lista de duraciones es posicional, tiene
+     que tener la misma cantidad de valores que transition-property. */
+  .card-hover {
+    transition-property: transform, box-shadow, border-color, background-color;
+    transition-duration: 250ms, 600ms, 250ms, 250ms;
+    transition-timing-function: ease-out;
+  }
+  .card-hover:hover {
+    transform: scale(1.02);
+  }
+
+  /* --- .link-underline — links de texto (nav, footer, listas) ------------
+     Subrayado que crece de izquierda a derecha con background-image, sin
+     pseudo-elementos: así funciona también en elementos que ya usan ::after. */
+  .link-underline {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+    color: theme("colors.lc-naranja");
+  }
+
+  /* Variante para fondos oscuros (barra inferior del footer): el naranja no
+     contrasta bien sobre lc-carbon, así que ahí el hover va a blanco. */
+  .link-underline-claro:hover,
+  .link-underline-claro:focus-visible {
+    color: #ffffff;
+  }
+
+  /* Botón circular de red social (footer). En reposo: blanco con borde e ícono en
+     carbón; en hover se rellena de carbón, el ícono pasa a claro y sube 2px. */
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9999px;
+    background-color: #ffffff;
+    border: 1px solid theme("colors.lc-carbon / 25%");
+    color: theme("colors.lc-carbon");
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+      color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+  .icon-btn:hover {
+    background-color: theme("colors.lc-carbon");
+    border-color: theme("colors.lc-carbon");
+    color: theme("colors.lc-blanco");
+    transform: translateY(-2px);
+  }
+  .icon-btn:active {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* El contenido siempre visible, sin transforms, aunque el usuario nunca
+     haya scrolleado hasta ahí: nunca queda invisible de forma permanente. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Se anula TODO el movimiento (transform), pero los cambios de color y el
+     subrayado se mantienen: el feedback sigue existiendo, sin desplazamientos. */
+  .hover-lift:hover,
+  .hover-lift:active,
+  .card-hover:hover,
+  .icon-btn:hover,
+  .icon-btn:active,
+  .chip-lift:hover,
+  .chip-lift:active,
+  .media-zoom:hover img {
+    transform: none !important;
+  }
+
+  .link-underline {
+    transition: none !important;
+  }
+}

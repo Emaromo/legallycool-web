@@ -1,0 +1,12 @@
+{
+  // Configuración de Cloudflare para publicar la landing como sitio estático.
+  // El build lo hace Vite (npm run build) y deja todo en ./dist.
+  "name": "legallycool-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // La landing es una sola página: cualquier ruta que no exista devuelve el index.html
+    // en vez de un 404 (por ejemplo si alguien entra directo a /reserva).
+    "not_found_handling": "single-page-application"
+  }
+}
