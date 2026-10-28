@@ -23,7 +23,6 @@ export interface Consulta {
   // reserve el espacio antes de bajar la imagen (evita el salto de layout).
   mediaAncho: number;
   mediaAlto: number;
-  precio: string;
   calcomEvent: string;
 }
 
@@ -61,9 +60,6 @@ const activo = MODO_PRUEBA ? DATOS_PRUEBA : DATOS_PROD;
 // sitemap) lo llevan literal porque son estáticos y no pasan por el bundler.
 export const SITE_URL = "https://legallycool.com.ar";
 
-// Precio único de la consulta: el mismo para las 4 áreas.
-const PRECIO_CONSULTA = "$102.691,80";
-
 // URL de Instagram en una sola constante: la usan tanto marca.instagram (identidad) como
 // contacto.instagram (redes del footer), para no tener dos fuentes de verdad que se
 // desincronicen al cambiarla.
@@ -100,7 +96,6 @@ export const config = {
   contacto: {
     email: activo.email,
     whatsapp: activo.whatsapp, // internacional sin +
-    linkedin: "#", // PLACEHOLDER: completar con la URL real del perfil/página
     facebook: "#", // PLACEHOLDER: completar con la URL real de la página
     instagram: INSTAGRAM_URL,
   },
@@ -166,9 +161,8 @@ export const config = {
     botonEscribime: "Escribime",
     botonSeguime: "Seguime",
     botonWhatsapp: "WhatsApp",
-    // NO SE RENDERIZAN HOY: los botones de LinkedIn y Facebook se sacaron de "Sobre mí"
-    // (quedan solo Instagram, WhatsApp y correo). Se dejan los rótulos por si vuelven.
-    botonLinkedin: "LinkedIn",
+    // NO SE RENDERIZA HOY: el botón de Facebook se sacó de "Sobre mí" (quedan solo
+    // Instagram, WhatsApp y correo). Se deja el rótulo por si vuelve.
     botonFacebook: "Facebook",
     // NO SE RENDERIZA HOY: era el recuadro punteado con el borrador de bio debajo de la foto.
     // Se quitó de la sección (el nombre y la matrícula ya están junto a los botones). Se deja
@@ -242,7 +236,6 @@ export const config = {
     linkEscribime: "Escribime",
     linkWhatsapp: "WhatsApp",
     linkInstagram: "Instagram",
-    linkLinkedin: "LinkedIn",
     linkFacebook: "Facebook",
     columnaSeguimeTitulo: "Seguime",
     // NO SE RENDERIZAN HOY: la franja CTA azul del footer se quitó porque era redundante
@@ -291,7 +284,6 @@ export const config = {
       // Por encima del centro: así entra el titular completo ("TODO EMPIEZA / CON UNA IDEA")
       // y todavía asoma parte de la lista BRANDING · DESIGN · CONTENT.
       mediaPos: "object-[50%_40%]",
-      precio: PRECIO_CONSULTA,
       calcomEvent: "marcas-disenos-dominios",
     },
     {
@@ -325,7 +317,6 @@ export const config = {
       // Bajado respecto del centro: el bloque "TU IDEA TAMBIÉN TIENE DERECHOS" está en la
       // mitad inferior de la pieza y con el centrado por defecto se cortaba.
       mediaPos: "object-[50%_60%]",
-      precio: PRECIO_CONSULTA,
       calcomEvent: "derecho-de-autor",
     },
     {
@@ -365,7 +356,6 @@ export const config = {
       media: "/brand/contratos-estructura.webp",
       mediaAncho: 1200,
       mediaAlto: 1502,
-      precio: PRECIO_CONSULTA,
       calcomEvent: "contratos-estructura",
     },
     {
@@ -387,7 +377,6 @@ export const config = {
       media: "/brand/derecholaboral.webp",
       mediaAncho: 1200,
       mediaAlto: 1457,
-      precio: PRECIO_CONSULTA,
       calcomEvent: "derecho-laboral",
     },
   ] as Consulta[],

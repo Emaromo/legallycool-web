@@ -5,7 +5,6 @@ import Logo from "./brand/Logo";
 // Logos reales de cada red (los mismos que usa "Sobre mí"), en vez de los glifos genéricos
 // de lucide: así los íconos coinciden en las dos secciones.
 import LogoInstagram from "./brand/LogoInstagram";
-import LogoLinkedin from "./brand/LogoLinkedin";
 import LogoFacebook from "./brand/LogoFacebook";
 import LogoWhatsapp from "./brand/LogoWhatsapp";
 import { useReveal } from "../hooks/useReveal";
@@ -40,7 +39,6 @@ export default function Footer() {
   // vivir en config.ts, que es solo datos).
   const redes = [
     { label: footer.linkInstagram, href: contacto.instagram, Icono: LogoInstagram },
-    { label: footer.linkLinkedin, href: contacto.linkedin, Icono: LogoLinkedin },
     { label: footer.linkFacebook, href: contacto.facebook, Icono: LogoFacebook },
     { label: footer.linkWhatsapp, href: `https://wa.me/${contacto.whatsapp}`, Icono: LogoWhatsapp },
   ];
@@ -178,13 +176,11 @@ export default function Footer() {
           <div className="flex items-center gap-3 uppercase tracking-wide shrink-0 text-[11px] text-white/65">
             <span>© {year}</span>
             <span aria-hidden="true">·</span>
+            {/* Solo © y Privacidad: el link de texto a Instagram se quitó (ya está el ícono
+                en la columna "Seguime", arriba). */}
             <button onClick={() => setPrivacidadAbierta(true)} className={linkBarra}>
               {legal.privacidadTitulo}
             </button>
-            <span aria-hidden="true">·</span>
-            <a href={contacto.instagram} target="_blank" rel="noopener noreferrer" className={linkBarra}>
-              {footer.linkInstagram}
-            </a>
           </div>
         </div>
       </div>

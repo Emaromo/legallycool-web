@@ -1,12 +1,40 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import config, { type Modalidad } from "../config";
 import Destello from "./brand/Destello";
 import IconoCalendario from "./brand/IconoCalendario";
 import { useReveal } from "../hooks/useReveal";
 
-// Alto fijo del contenedor del calendario. El placeholder y el iframe de Cal.com ocupan
-// exactamente el mismo alto, así el layout no salta al elegir servicio/modalidad.
-const CALENDARIO_H = 460;
+// Alto FIJO del contenedor del calendario — el placeholder y el iframe de Cal.com ocupan
+// exactamente el mismo, así el layout no salta al elegir servicio/modalidad.
+// Tiene que alcanzar para todo el contenido de Cal.com (mes + lista de horarios + su pie):
+// con menos, el iframe saca su propia barra de scroll. En celular la vista de Cal.com se
+// apila (mes arriba, horarios abajo) y necesita más alto que en escritorio.
+// Mobile-first: 900px hasta 640px de ancho, 760px de ahí en adelante.
+// En ESCRITORIO Cal.com pone la lista de horarios en una columna con scroll propio, así que
+// con 760px entra todo (mes + lista + pie) y el iframe va con scrolling="no".
+// En CELULAR la lista se apila debajo del mes y NO tiene scroll propio: su largo depende de
+// cuántos turnos haya ese día, así que ningún alto fijo la contiene siempre. Por eso ahí el
+// iframe conserva su scroll (ver ESCRITORIO_MQ más abajo); si no, los últimos horarios del
+// día quedan fuera de alcance.
+const CALENDARIO_CLASES = "h-[900px] sm:h-[760px]";
+const ESCRITORIO_MQ = "(min-width: 640px)";
+
+// ============================================================================
+// HOOK: ¿estamos en escritorio? Solo para decidir si el iframe lleva scroll propio
+// (el atributo scrolling no se puede cambiar por CSS).
+// ============================================================================
+function useEsEscritorio() {
+  const [esEscritorio, setEsEscritorio] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(ESCRITORIO_MQ).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(ESCRITORIO_MQ);
+    const onChange = () => setEsEscritorio(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return esEscritorio;
+}
 
 // ============================================================================
 // BLOQUE DE SELECCIÓN: rótulo + fila de chips. Siempre visible y compacto.
@@ -30,6 +58,7 @@ export default function Reserva() {
   // El iframe de Cal.com no le avisa a la página cuando alguien termina de reservar, así que
   // el paso de confirmación lo habilita la persona con el botón "Ya reservé mi turno".
   const [yaReservo, setYaReservo] = useState(false);
+  const esEscritorio = useEsEscritorio();
 
   // Si config.modalidades trae una sola (hoy: presencial), queda preseleccionada. El paso se
   // sigue mostrando igual, con su lugar en el stepper: es una decisión de diseño, el
@@ -42,7 +71,11 @@ export default function Reserva() {
   const cuerpo = useReveal<HTMLDivElement>({ delayMs: 140 });
 
   const tipo = consultas.find((c) => c.id === tipoId);
-  const calcomUrl = tipo ? `https://cal.com/${calcom.usuario}/${tipo.calcomEvent}` : null;
+  // layout=month_view fuerza la vista mensual de Cal.com (si no, puede abrir en vista de
+  // columna semanal, que es más alta y saca scroll dentro del iframe).
+  const calcomUrl = tipo
+    ? `https://cal.com/${calcom.usuario}/${tipo.calcomEvent}?layout=month_view`
+    : null;
   const listoParaAgendar = Boolean(tipo && modalidad);
 
   // Mensaje prearmado de WhatsApp. Sin día y hora (el iframe no los expone), va la versión
@@ -175,21 +208,24 @@ export default function Reserva() {
           </BloqueSeleccion>
 
           {/* ==================== CALENDARIO (alto fijo) ==================== */}
-          {/* Línea de resumen: servicio · modalidad · precio */}
+          {/* Línea de resumen: servicio · modalidad. Sin precio: no se muestra en ningún
+              lado de la web. */}
           {listoParaAgendar && (
             <p className="text-lc-carbon/70 text-sm mb-3">
-              {tipo!.titulo} · {modalidades.find((m) => m.id === modalidad)!.label} · {tipo!.precio}
+              {tipo!.titulo} · {modalidades.find((m) => m.id === modalidad)!.label}
             </p>
           )}
 
           <div
-            className="w-full overflow-hidden rounded-[20px] bg-white border border-lc-azul/10 shadow-card-soft"
-            style={{ height: CALENDARIO_H }}
+            className={`w-full ${CALENDARIO_CLASES} overflow-hidden rounded-[20px] bg-white border border-lc-azul/10 shadow-card-soft`}
           >
             {mostrarIframe ? (
               <iframe
                 title={`Reservar ${tipo!.titulo}`}
                 src={calcomUrl!}
+                // scrolling="no" + el overflow-hidden del contenedor: el iframe no saca su
+                // propia barra. El alto de arriba tiene que alcanzar para todo su contenido.
+                scrolling={esEscritorio ? "no" : undefined}
                 className="w-full h-full border-0"
               />
             ) : (

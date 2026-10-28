@@ -32,7 +32,10 @@ const IMAGEN_RE = /\.(svg|png|jpe?g|webp)$/i;
 // ============================================================================
 // AJUSTES DEL CARRUSEL (tocá estos números para cambiar el ritmo/estética)
 // ============================================================================
-const AUTO_ADVANCE_MS = 4000;               // cada cuánto avanza solo (ms)
+// ⏱ CUÁNTO SE QUEDA CADA TARJETA antes de pasar a la siguiente (en milisegundos).
+// Subir este número si el texto de las tarjetas crece y no da tiempo a leerlo;
+// bajarlo si el carrusel se siente lento. 8000 = 8 segundos.
+const AUTO_ADVANCE_MS = 8000;
 const TRANSITION_MS = 800;                  // cuánto dura el deslizamiento (ms)
 const TRANSITION_EASE = "cubic-bezier(0.5, 0, 0.2, 1)"; // curva del deslizamiento
 const FALLBACK_CARD_H = 360;                // alto estimado antes de medir la tarjeta real
